@@ -1,0 +1,75 @@
+{
+  "builder_name": "parquet",
+  "citation": "",
+  "config_name": "default",
+  "dataset_name": "enron_emails_sample_questions",
+  "dataset_size": 16490499,
+  "description": "",
+  "download_checksums": {
+    "hf://datasets/corbt/enron_emails_sample_questions@abc84674cefc28ca4bf2cd3f0f0c9c860d690d70/data/train-00000-of-00001.parquet": {
+      "num_bytes": 7954326,
+      "checksum": null
+    },
+    "hf://datasets/corbt/enron_emails_sample_questions@abc84674cefc28ca4bf2cd3f0f0c9c860d690d70/data/test-00000-of-00001.parquet": {
+      "num_bytes": 267520,
+      "checksum": null
+    }
+  },
+  "download_size": 8221846,
+  "features": {
+    "id": {
+      "dtype": "int32",
+      "_type": "Value"
+    },
+    "question": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "answer": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "message_ids": {
+      "feature": {
+        "dtype": "string",
+        "_type": "Value"
+      },
+      "_type": "List"
+    },
+    "how_realistic": {
+      "dtype": "float32",
+      "_type": "Value"
+    },
+    "inbox_address": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "query_date": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "",
+  "license": "",
+  "size_in_bytes": 24712345,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 15952611,
+      "num_examples": 53511,
+      "dataset_name": "enron_emails_sample_questions"
+    },
+    "test": {
+      "name": "test",
+      "num_bytes": 537888,
+      "num_examples": 1733,
+      "dataset_name": "enron_emails_sample_questions"
+    }
+  },
+  "version": {
+    "version_str": "0.0.0",
+    "major": 0,
+    "minor": 0,
+    "patch": 0
+  }
+}

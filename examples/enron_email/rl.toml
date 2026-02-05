@@ -1,0 +1,49 @@
+inference_gpu_ids = [0]
+trainer_gpu_ids = [1, 2, 3]
+
+max_steps = 1000
+seq_len = 4096
+
+[model]
+name = "Qwen/Qwen3-8B"
+
+[wandb]
+project = "enron-email"
+name = "enron-email"
+
+[trainer.optim]
+lr = 5e-6
+weight_decay = 0.0
+
+[trainer.model.lora]
+rank = 16
+dropout = 0.0
+target_modules = [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+]
+
+[orchestrator]
+batch_size = 128
+rollouts_per_example = 8
+oversampling_factor = 2.0
+
+[orchestrator.sampling]
+max_tokens = 2048
+temperature = 0.7
+
+[orchestrator.buffer]
+online_difficulty_filtering = true
+
+[[orchestrator.env]]
+id = "art_e"
+args = { max_turns = 10, judge_model = "gpt-4.1-mini", use_tool_count_reward = true }
+
+[inference.model]
+enable_auto_tool_choice = true
+tool_call_parser = "hermes"

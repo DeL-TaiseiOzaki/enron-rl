@@ -196,3 +196,7 @@ debug_I2_zero_band
 .idea
 
 outputs/
+
+# Large data files
+data/enron_emails.db
+data/**/cache-*.arrow
