@@ -1,7 +1,6 @@
 inference_gpu_ids = [0]
 trainer_gpu_ids = [1]
 
-max_steps = 1000
 seq_len = 4096
 
 [model]
@@ -29,6 +28,7 @@ target_modules = [
 ]
 
 [orchestrator]
+num_epochs = 1
 batch_size = 128
 rollouts_per_example = 8
 oversampling_factor = 2.0

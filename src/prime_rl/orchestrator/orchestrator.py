@@ -1,4 +1,5 @@
 import asyncio
+import math
 import random
 import time
 
@@ -156,6 +157,15 @@ async def orchestrate(config: OrchestratorConfig):
         val_buffer = Buffer(val_dataset, env.env_names, val_buffer_config)
     else:
         val_buffer = None
+
+    # Compute max_steps from num_epochs if specified
+    if config.num_epochs is not None:
+        steps_per_epoch = math.ceil(len(train_dataset) / config.batch_size)
+        config.max_steps = steps_per_epoch * config.num_epochs
+        logger.info(
+            f"Computed max_steps from num_epochs: {config.num_epochs} epochs × {steps_per_epoch} steps/epoch = {config.max_steps} steps "
+            f"(dataset_size={len(train_dataset)}, batch_size={config.batch_size})"
+        )
 
     # Get checkpoint manager
     logger.info(f"Initializing checkpoint manager ({config.ckpt})")

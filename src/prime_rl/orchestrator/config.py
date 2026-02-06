@@ -746,6 +746,14 @@ class OrchestratorConfig(BaseSettings):
         ),
     ] = None
 
+    num_epochs: Annotated[
+        int | None,
+        Field(
+            ge=1,
+            description="Number of epochs to train. If set, max_steps will be computed as ceil(dataset_size / batch_size) * num_epochs. Takes precedence over max_steps.",
+        ),
+    ] = None
+
     max_off_policy_steps: Annotated[
         int,
         Field(
