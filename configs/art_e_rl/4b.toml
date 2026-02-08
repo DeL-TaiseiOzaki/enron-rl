@@ -1,7 +1,7 @@
 inference_gpu_ids = [0]
 trainer_gpu_ids = [1]
 
-seq_len = 4096
+seq_len = 16384
 
 [model]
 name = "Qwen/Qwen3-4B"
@@ -42,7 +42,7 @@ online_difficulty_filtering = true
 
 [[orchestrator.env]]
 id = "art_e"
-args = { max_turns = 10, judge_model = "gpt-4.1-mini", use_tool_count_reward = true, dataset_path = "data/art_e_vince_kaminski" }
+args = { max_turns = 10, judge_model = "gpt-5-mini", use_tool_count_reward = true, dataset_path = "data/art_e_vince_kaminski" }
 
 [inference.model]
 enable_auto_tool_choice = true
