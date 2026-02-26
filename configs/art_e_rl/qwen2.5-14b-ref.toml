@@ -1,0 +1,112 @@
+# =============================================================================
+# Qwen2.5-14B-Instruct — ART-E Reference Code Reproduction
+# =============================================================================
+# Source: base_reference_code.py (OpenPipe ART notebook for art-e email agent)
+#
+# Parameter mapping from reference → prime-rl:
+#   model: OpenPipe/Qwen3-14B-Instruct → Qwen/Qwen2.5-14B-Instruct
+#   learning_rate: 1e-5                → trainer.optim.lr = 1.0e-5
+#   groups_per_step: 2                 → batch_size / rollouts_per_example = 32
+#   rollouts_per_group: 4              → rollouts_per_example = 4
+#   MAX_TURNS: 6                       → env.args.max_turns = 6
+#   temperature: 1 (implicit)          → sampling.temperature = 1.0
+#   RULER scoring: openai/o4-mini      → GRPO advantage (group-relative)
+#   Judge: openai/gpt-4.1              → gpt-5-mini (judge_reward)
+#   Reward: binary (0/1)               → default (1.0/-1.0/0.0)
+#
+# Key differences from reference:
+#   - RULER (relative LLM scoring) → GRPO (group-relative advantage)
+#   - Full fine-tuning → LoRA rank=32 (8-GPU memory constraint)
+#   - 50 training examples → 2,510 examples (our Kaminski dataset)
+#   - ServerlessBackend (W&B cloud) → Local 8-GPU distributed training
+# =============================================================================
+
+inference_gpu_ids = [0, 1, 2, 3]
+trainer_gpu_ids = [4, 5, 6, 7]
+
+seq_len = 16384
+
+# Reference: max_steps=50 over 50 examples with groups_per_step=2 (= 2 epochs)
+# Our dataset: 2,510 examples, batch_size=128, rollouts_per_example=4
+# → 32 unique problems/step → ceil(2510/32) = 79 steps/epoch
+# → 10 epochs = ~200 steps (more data exposure than reference's 2 epochs)
+max_steps = 200
+
+[ckpt]
+interval = 10
+
+[model]
+name = "Qwen/Qwen2.5-14B-Instruct"
+
+[wandb]
+project = "art-e-rl"
+name = "art-e-rl-qwen2.5-14b-ref"
+offline = true
+
+[trainer]
+dist_timeout_seconds = 3600
+
+[trainer.optim]
+# Reference: learning_rate = 1e-5
+lr = 1.0e-5
+weight_decay = 0.0
+
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+# 14B requires activation checkpointing to avoid OOM
+[trainer.model.ac]
+freq = 1
+
+# Reference uses full fine-tuning via ServerlessBackend.
+# LoRA rank=32 as practical approximation on 4 training GPUs.
+[trainer.model.lora]
+rank = 32
+dropout = 0.0
+target_modules = [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+]
+
+[orchestrator]
+# Reference: num_epochs=20 over 50 examples, max_steps=50 (effective ~2 epochs)
+# With 2,510 examples, 10 epochs provides adequate data coverage
+num_epochs = 10
+# Reference: groups_per_step=2, rollouts_per_group=4 → 8 samples/step
+# Scaled to batch_size=128 for GPU efficiency (32 problems × 4 rollouts)
+batch_size = 128
+# Reference: rollouts_per_group = 4
+rollouts_per_example = 4
+oversampling_factor = 2.0
+
+[orchestrator.sampling]
+# Reference: no explicit max_tokens; email search with 6 turns
+max_tokens = 4096
+# Reference: temperature=1 (OpenAI client default, explicit in rollout function)
+temperature = 1.0
+
+[orchestrator.buffer]
+online_difficulty_filtering = false
+
+[[orchestrator.env]]
+id = "art_e"
+# Reference: MAX_TURNS=6, gpt-4.1 judge
+# judge_model: using gpt-5-mini (faster, available)
+# reward: default (1.0/-1.0/0.0) — reference uses binary 0/1 then RULER rescoring
+# tool_count_reward: enabled (weight 0.05) — rewards efficient tool use
+args = { max_turns = 6, judge_model = "gpt-5-mini", use_tool_count_reward = true, dataset_path = "data/art_e_vince_kaminski" }
+
+[inference]
+gpu_memory_utilization = 0.85
+
+[inference.model]
+enable_auto_tool_choice = true
+# Qwen2.5-14B-Instruct supports Hermes-style tool calls (verified)
+tool_call_parser = "hermes"
+enforce_eager = true

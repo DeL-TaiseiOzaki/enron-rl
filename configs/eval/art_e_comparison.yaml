@@ -1,0 +1,49 @@
+experiment:
+  name: "art-e-3model-comparison"
+  seed: 42
+  num_samples: 350
+  max_turns: 10
+  output_dir: "outputs/eval"
+
+dataset:
+  path: "data/art_e_vince_kaminski"
+  split: "test"
+  db_path: "data/enron_emails.db"
+
+judge:
+  model: "gpt-5-mini"
+  api_key_env: "OPENAI_API_KEY"
+
+models:
+  - name: "art-e-rl-8b-v2"
+    backend: "vllm_local"
+    model_name: "Qwen/Qwen3-8B"
+    adapter_path: "outputs/8b-v2/run_default/broadcasts/step_6"
+    lora_rank: 32
+    temperature: 0.0
+    max_tokens: 8192
+    max_concurrent: 1  # vLLM local is synchronous per call
+
+  - name: "gpt-5"
+    backend: "openai"
+    model_name: "gpt-5"
+    api_key_env: "OPENAI_API_KEY"
+    temperature: 0.0
+    max_tokens: 4096
+    max_concurrent: 10
+
+  - name: "gpt-5-mini"
+    backend: "openai"
+    model_name: "gpt-5-mini"
+    api_key_env: "OPENAI_API_KEY"
+    temperature: 0.0
+    max_tokens: 4096
+    max_concurrent: 10
+
+  - name: "claude-opus-4.5"
+    backend: "anthropic"
+    model_name: "claude-opus-4-5-20251101"
+    api_key_env: "CLAUDE_API_KEY"
+    temperature: 0.0
+    max_tokens: 4096
+    max_concurrent: 10

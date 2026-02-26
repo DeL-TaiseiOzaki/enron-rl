@@ -2,25 +2,33 @@ inference_gpu_ids = [0, 1, 2, 3]
 trainer_gpu_ids = [4, 5, 6, 7]
 
 seq_len = 16384
-max_steps = 40
+max_steps = 100
 
 [ckpt]
 interval = 10
 resume_step = 20
 
 [model]
-name = "Qwen/Qwen3-1.7B"
+name = "Qwen/Qwen3-8B"
 
 [wandb]
 project = "art-e-rl"
-name = "art-e-rl-1.7b"
+name = "art-e-rl-8b-v2"
+offline = true
 
 [trainer.optim]
-lr = 1.2e-5
+lr = 2.4e-5
 weight_decay = 0.0
 
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+[trainer.model.ac]
+freq = 1
+
 [trainer.model.lora]
-rank = 16
+rank = 32
 dropout = 0.0
 target_modules = [
     "q_proj",
@@ -33,8 +41,8 @@ target_modules = [
 ]
 
 [orchestrator]
-num_epochs = 2
-batch_size = 128
+num_epochs = 10
+batch_size = 256
 rollouts_per_example = 16
 oversampling_factor = 2.0
 
@@ -43,7 +51,7 @@ max_tokens = 8192
 temperature = 0.7
 
 [orchestrator.buffer]
-online_difficulty_filtering = false
+online_difficulty_filtering = true
 
 [[orchestrator.env]]
 id = "art_e"

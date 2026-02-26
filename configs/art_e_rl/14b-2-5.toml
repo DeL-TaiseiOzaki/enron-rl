@@ -2,25 +2,35 @@ inference_gpu_ids = [0, 1, 2, 3]
 trainer_gpu_ids = [4, 5, 6, 7]
 
 seq_len = 16384
-max_steps = 40
+max_steps = 220
 
 [ckpt]
 interval = 10
-resume_step = 20
 
 [model]
-name = "Qwen/Qwen3-1.7B"
+name = "Qwen/Qwen2.5-14B-instruct"
 
 [wandb]
 project = "art-e-rl"
-name = "art-e-rl-1.7b"
+name = "art-e-rl-14b-v2"
+offline = true
+
+[trainer]
+dist_timeout_seconds = 3600
 
 [trainer.optim]
-lr = 1.2e-5
+lr = 2.4e-5
 weight_decay = 0.0
 
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+[trainer.model.ac]
+freq = 1
+
 [trainer.model.lora]
-rank = 16
+rank = 32
 dropout = 0.0
 target_modules = [
     "q_proj",
@@ -33,8 +43,8 @@ target_modules = [
 ]
 
 [orchestrator]
-num_epochs = 2
-batch_size = 128
+num_epochs = 22
+batch_size = 256
 rollouts_per_example = 16
 oversampling_factor = 2.0
 
@@ -47,7 +57,7 @@ online_difficulty_filtering = false
 
 [[orchestrator.env]]
 id = "art_e"
-args = { max_turns = 10, judge_model = "gpt-5-mini", use_tool_count_reward = true, dataset_path = "data/art_e_vince_kaminski" }
+args = { max_turns = 10, judge_model = "gpt-5-mini", use_tool_count_reward = false, dataset_path = "data/art_e_vince_kaminski", reward_correct = 1.0, reward_wrong = -0.5, reward_idk = -0.1 }
 
 [inference]
 gpu_memory_utilization = 0.85

@@ -1,0 +1,25 @@
+experiment:
+  name: "art-e-multihop"
+  seed: 42
+  num_samples: 350
+  max_turns: 10
+  output_dir: "outputs/eval"
+
+dataset:
+  path: "data/art_e_vince_kaminski_multihop"
+  split: "test"
+  db_path: "data/enron_emails.db"
+
+judge:
+  model: "gpt-5-mini"
+  api_key_env: "OPENAI_API_KEY"
+
+models:
+  - name: "gpt-oss-120b"
+    backend: "openai"
+    model_name: "openai/gpt-oss-120b"
+    base_url: "http://localhost:8008/v1"
+    api_key_env: "VLLM_API_KEY"
+    temperature: 0.0
+    max_tokens: 8192
+    max_concurrent: 4

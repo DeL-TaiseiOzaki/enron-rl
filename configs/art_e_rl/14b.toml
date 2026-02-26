@@ -2,25 +2,35 @@ inference_gpu_ids = [0, 1, 2, 3]
 trainer_gpu_ids = [4, 5, 6, 7]
 
 seq_len = 16384
-max_steps = 40
+max_steps = 500
 
 [ckpt]
-interval = 10
-resume_step = 20
+interval = 20
 
 [model]
-name = "Qwen/Qwen3-1.7B"
+name = "Qwen/Qwen2.5-14B-instruct"
 
 [wandb]
 project = "art-e-rl"
-name = "art-e-rl-1.7b"
+name = "art-e-rl-14b-2-5"
+offline = true
+
+[trainer]
+dist_timeout_seconds = 3600
 
 [trainer.optim]
-lr = 1.2e-5
+lr = 2.4e-5
 weight_decay = 0.0
 
+[trainer.model]
+optimization_dtype = "bfloat16"
+reduce_dtype = "bfloat16"
+
+[trainer.model.ac]
+freq = 1
+
 [trainer.model.lora]
-rank = 16
+rank = 8
 dropout = 0.0
 target_modules = [
     "q_proj",
@@ -33,17 +43,17 @@ target_modules = [
 ]
 
 [orchestrator]
-num_epochs = 2
-batch_size = 128
+num_epochs = 10
+batch_size = 256
 rollouts_per_example = 16
 oversampling_factor = 2.0
 
 [orchestrator.sampling]
-max_tokens = 8192
+max_tokens = 2048
 temperature = 0.7
 
 [orchestrator.buffer]
-online_difficulty_filtering = false
+online_difficulty_filtering = true
 
 [[orchestrator.env]]
 id = "art_e"
